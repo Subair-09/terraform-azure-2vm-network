@@ -1,123 +1,222 @@
 Terraform Azure 2-VM Network Infrastructure
-Project Overview
+https://img.shields.io/badge/terraform-%25235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white
+https://img.shields.io/badge/azure-%25230072C6.svg?style=for-the-badge&logo=microsoftazure&logoColor=white
+https://img.shields.io/badge/linux-%2523FCC624.svg?style=for-the-badge&logo=linux&logoColor=black
 
-This project demonstrates the deployment of a secure virtual network infrastructure on Microsoft Azure using Infrastructure as Code with Terraform and the AzureRM provider.
+📋 Overview
+This project demonstrates the deployment of a secure virtual network infrastructure on Microsoft Azure using Infrastructure as Code with Terraform and the AzureRM provider. The infrastructure provisions two Linux virtual machines within the same virtual network and subnet, configured to communicate securely using private IP addressing.
 
-The infrastructure provisions two Linux virtual machines within the same virtual network and subnet, configured to communicate securely using private IP addressing. Network Security Group rules are implemented to control traffic and allow internal ICMP communication between the virtual machines.
+Key Highlights:
 
-This project reflects real-world cloud engineering practices including modular infrastructure design, network security configuration, and automated deployment validation.
+Infrastructure as Code implementation with Terraform
 
-Architecture 🏗️
+Secure network segmentation with NSG rules
 
-The deployment includes:
+Private IP-based VM communication
 
-Azure Resource Group
+Production-ready modular architecture
 
-Virtual Network with defined address space 🌐
+🏗️ Architecture
+The deployment creates a complete Azure network infrastructure with the following components:
 
-Subnet for compute resources
+text
+┌─────────────────────────────────────┐
+│         Resource Group              │
+│  ┌─────────────────────────────┐   │
+│  │      Virtual Network        │   │
+│  │  ┌─────────────────────┐   │   │
+│  │  │      Subnet         │   │   │
+│  │  │  ┌───────────────┐  │   │   │
+│  │  │  │     VM-1      │  │   │   │
+│  │  │  └───────────────┘  │   │   │
+│  │  │  ┌───────────────┐  │   │   │
+│  │  │  │     VM-2      │  │   │   │
+│  │  │  └───────────────┘  │   │   │
+│  │  └─────────────────────┘   │   │
+│  └─────────────────────────────┘   │
+│  ┌─────────────────────────────┐   │
+│  │    Network Security Group   │   │
+│  └─────────────────────────────┘   │
+└─────────────────────────────────────┘
+Components Provisioned:
+Azure Resource Group: Container for all resources
 
-Network Security Group with inbound and internal rules 🔒
+Virtual Network: Isolated network environment with custom address space
 
-Two Linux Virtual Machines 🖥️🖥️
+Subnet: Compute resource segment within the VNet
 
-Network Interfaces and Public IP configuration (optional access)
+Network Security Group: Firewall rules controlling inbound and internal traffic
 
-Managed Data Disk attachment 💾
+Linux Virtual Machines (2): Ubuntu instances with managed data disks
 
-Private IP-based VM-to-VM communication
+Network Interfaces: Private IP configuration with optional public IPs
 
-Both virtual machines are deployed in the same subnet and validated for internal connectivity without exposing internal communication publicly.
+Managed Data Disks: Additional storage attached to each VM
 
-Key Features ⚙️
+✨ Key Features
+Infrastructure as Code: Complete infrastructure defined in HCL
 
-Infrastructure as Code using Terraform AzureRM provider
+Modular Design: Reusable Terraform modules for different components
 
-Modular Terraform architecture for reusability
+Network Security: Granular NSG rules for traffic control
 
-Secure internal communication using private IPs 🔐
+Private Communication: VM-to-VM communication over private IPs
 
-Network Security Group configuration for traffic control
+State Management: Remote state support ready for team collaboration
 
-Automated infrastructure provisioning 🚀
+Production Structure: Organized codebase following best practices
 
-Azure CLI validation of network connectivity
+📁 Project Structure
+text
+terraform-azure-2vm-network/
+├── main.tf              # Main configuration file
+├── variables.tf         # Input variables
+├── outputs.tf           # Output values
+├── terraform.tfvars     # Variable values (excluded from git)
+├── modules/             # Reusable modules
+│   ├── networking/      # VNet and subnet configuration
+│   ├── security/        # NSG and security rules
+│   └── compute/         # VM and disk configuration
+└── scripts/             # Helper scripts
+    └── validate.sh      # Connectivity validation script
+📋 Prerequisites
+Before deploying this infrastructure, ensure you have:
 
-Production-style repository structure
+Azure Subscription - Active subscription with sufficient permissions
 
-Project Structure 📁
-<img width="388" height="480" alt="image" src="https://github.com/user-attachments/assets/a2cad557-45fa-4f9b-bca8-1ef3d50640d4" />
+Terraform (v1.0+) - Installation Guide
 
-Prerequisites 📌
+Azure CLI (v2.0+) - Installation Guide
 
-Azure Subscription
+Git - For version control
 
-Terraform installed
+Basic Knowledge - Azure networking concepts
 
-Azure CLI installed
-
-Authenticated Azure CLI session
-
-Basic understanding of Azure networking
-
-Login to Azure:
-
+🚀 Deployment Instructions
+1. Clone the Repository
+bash
+git clone https://github.com/yourusername/terraform-azure-2vm-network.git
+cd terraform-azure-2vm-network
+2. Authenticate with Azure
+bash
 az login
-Deployment Steps ▶️
+az account set --subscription "your-subscription-id"
+3. Configure Variables
+Create a terraform.tfvars file:
 
-Initialize Terraform:
-
+hcl
+location       = "East US"
+environment    = "dev"
+vm_admin_user  = "azureuser"
+vm_admin_ssh_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC..."
+4. Deploy Infrastructure
+bash
+# Initialize Terraform
 terraform init
 
-Preview infrastructure:
-
+# Review the execution plan
 terraform plan
 
-Deploy resources:
+# Apply the configuration
+terraform apply -auto-approve
+🔍 Connectivity Validation
+Verify private IP communication between the virtual machines:
 
-terraform apply
-Connectivity Validation 🔎
-
-The virtual machines communicate using private IP addresses within the same subnet.
-
-Connectivity can be verified using Azure CLI Run Command:
-
+Method 1: Azure CLI Run Command
+bash
+# From VM-1 to VM-2
 az vm run-command invoke \
   --resource-group rg-2vm-network \
   --name vm-1 \
   --command-id RunShellScript \
-  --scripts "ping -c 4 <vm-2-private-ip>"
+  --scripts "ping -c 4 $(az vm show --resource-group rg-2vm-network --name vm-2 --query 'privateIps' -o tsv)"
+Method 2: Manual SSH Connection
+bash
+# Get VM-1 public IP
+PUBLIC_IP=$(az vm show -d --resource-group rg-2vm-network --name vm-1 --query publicIps -o tsv)
 
-Successful response confirms internal network communication.
+# SSH into VM-1 and ping VM-2
+ssh azureuser@$PUBLIC_IP
+ping <vm-2-private-ip>
+Expected Output:
+text
+PING 10.0.1.5 (10.0.1.5) 56(84) bytes of data.
+64 bytes from 10.0.1.5: icmp_seq=1 ttl=64 time=1.23 ms
+64 bytes from 10.0.1.5: icmp_seq=2 ttl=64 time=1.15 ms
+🔒 Security Considerations
+Security Measure	Implementation
+State Security	Terraform state files excluded from Git (.gitignore)
+Access Control	SSH key authentication (no passwords)
+Network Isolation	Private IP communication within VNet
+Traffic Filtering	NSG rules limiting inbound traffic
+Provider Security	Provider binaries not tracked in Git
+NSG Rules Configured:
+SSH Access (Port 22) - Restricted to specified IP ranges
 
-Security Considerations 🛡️
+ICMP (Ping) - Allowed between VMs in the same subnet
 
-Terraform state files are excluded from version control
+Outbound Internet - Default allow for updates
 
-Provider binaries are not tracked in Git
+📊 Outputs
+After deployment, Terraform will output:
 
-Network access is controlled using Network Security Group rules
+bash
+Apply complete! Resources: 12 added, 0 changed, 0 destroyed.
 
-Internal communication occurs over private IP addresses
+Outputs:
 
-Skills Demonstrated 💡
+resource_group_name = "rg-2vm-network"
+vnet_name          = "vnet-2vm-network"
+vm_1_private_ip    = "10.0.1.4"
+vm_2_private_ip    = "10.0.1.5"
+vm_1_public_ip     = "52.123.45.67"
+vm_2_public_ip     = "52.123.45.68"
+🛠️ Maintenance and Cleanup
+Destroy Resources
+To avoid ongoing charges, destroy the infrastructure when not needed:
 
-Azure Infrastructure Deployment
+bash
+terraform destroy -auto-approve
+Update Infrastructure
+Modify variables and reapply:
 
-Terraform AzureRM Provider
+bash
+terraform apply
+💡 Skills Demonstrated
+Azure Infrastructure Deployment - End-to-end Azure resource provisioning
 
-Infrastructure as Code Design
+Terraform AzureRM Provider - Expert use of HashiCorp Configuration Language
 
-Virtual Network Architecture
+Infrastructure as Code Design - Modular, reusable code architecture
 
-Network Security Configuration
+Virtual Network Architecture - Subnet planning and IP addressing
 
-Cloud Resource Automation
+Network Security Configuration - NSG rules and traffic control
 
-Command-line Infrastructure Validation
+Cloud Resource Automation - Complete infrastructure lifecycle management
 
-Author
+Command-line Validation - Azure CLI integration for testing
 
+📚 Additional Resources
+Terraform AzureRM Provider Documentation
+
+Azure Virtual Network Documentation
+
+Network Security Groups Overview
+
+🤝 Contributing
+Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
+
+📝 License
+This project is MIT licensed.
+
+👨‍💻 Author
 Subair Nurudeen Adewale
+
 Cloud / DevOps Engineer
+
 Azure Infrastructure and Automation Specialist
+
+GitHub
+
+LinkedIn
