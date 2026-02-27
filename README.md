@@ -7,65 +7,48 @@ The infrastructure provisions two Linux virtual machines within the same virtual
 
 This project reflects real-world cloud engineering practices including modular infrastructure design, network security configuration, and automated deployment validation.
 
-Architecture
+Architecture 🏗️
 
 The deployment includes:
 
 Azure Resource Group
 
-Virtual Network with defined address space
+Virtual Network with defined address space 🌐
 
 Subnet for compute resources
 
-Network Security Group with inbound and internal rules
+Network Security Group with inbound and internal rules 🔒
 
-Two Linux Virtual Machines
+Two Linux Virtual Machines 🖥️🖥️
 
 Network Interfaces and Public IP configuration (optional access)
 
-Managed Data Disk attachment
+Managed Data Disk attachment 💾
 
 Private IP-based VM-to-VM communication
 
 Both virtual machines are deployed in the same subnet and validated for internal connectivity without exposing internal communication publicly.
 
-Key Features
+Key Features ⚙️
 
 Infrastructure as Code using Terraform AzureRM provider
 
 Modular Terraform architecture for reusability
 
-Secure internal communication using private IPs
+Secure internal communication using private IPs 🔐
 
 Network Security Group configuration for traffic control
 
-Automated infrastructure provisioning
+Automated infrastructure provisioning 🚀
 
 Azure CLI validation of network connectivity
 
 Production-style repository structure
 
-Project Structure
-terraform-azure-2vm-network/
-│
-├── Modules/
-│   ├── Network/
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   │
-│   └── linux_vm/
-│       ├── main.tf
-│       ├── variables.tf
-│       └── outputs.tf
-│
-├── main.tf
-├── provider.tf
-├── variables.tf
-├── terraform.tfvars
-├── outputs.tf
-└── README.md
-Prerequisites
+Project Structure 📁
+<img width="388" height="480" alt="image" src="https://github.com/user-attachments/assets/a2cad557-45fa-4f9b-bca8-1ef3d50640d4" />
+
+Prerequisites 📌
 
 Azure Subscription
 
@@ -80,7 +63,7 @@ Basic understanding of Azure networking
 Login to Azure:
 
 az login
-Deployment Steps
+Deployment Steps ▶️
 
 Initialize Terraform:
 
@@ -93,7 +76,7 @@ terraform plan
 Deploy resources:
 
 terraform apply
-Connectivity Validation
+Connectivity Validation 🔎
 
 The virtual machines communicate using private IP addresses within the same subnet.
 
@@ -107,7 +90,7 @@ az vm run-command invoke \
 
 Successful response confirms internal network communication.
 
-Security Considerations
+Security Considerations 🛡️
 
 Terraform state files are excluded from version control
 
@@ -117,7 +100,7 @@ Network access is controlled using Network Security Group rules
 
 Internal communication occurs over private IP addresses
 
-Skills Demonstrated
+Skills Demonstrated 💡
 
 Azure Infrastructure Deployment
 
